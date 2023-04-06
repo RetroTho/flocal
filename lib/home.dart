@@ -35,6 +35,9 @@ class _HomePage extends State<HomePage> {
   @override
   Widget build(BuildContext context){
     return Scaffold(
+      appBar: AppBar(
+        title: const Text("Flocal"),
+      ),
       body: Column(
         children: <Widget>[
           Text("$_time"),
