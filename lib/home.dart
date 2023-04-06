@@ -11,17 +11,36 @@ class HomePage extends StatefulWidget {
 
 class _HomePage extends State<HomePage> {
   Timer _timer = Timer(const Duration(), () {});
-  final int _work = 10;
-  final int _break = 3;
+  final int _work = 1500;
+  final int _break = 300;
   int _current = 0;
   int _sessions = 0;
   bool _started = false;
   bool _paused = false;
   String _task = "";
+  String _output = "";
+
+  String formatTime(int seconds) {
+    int hours = (seconds / 3600).truncate();
+    seconds = (seconds % 3600).truncate();
+    int minutes = (seconds / 60).truncate();
+
+    String hoursStr = (hours).toString().padLeft(2, '0');
+    String minutesStr = (minutes).toString().padLeft(2, '0');
+    String secondsStr = (seconds % 60).toString().padLeft(2, '0');
+
+    if (hours == 0){
+      return "$minutesStr:$secondsStr";
+    }
+    else {
+      return "$hoursStr:$minutesStr:$secondsStr";
+    }
+  }
 
   void startWorkTimer() {
     const oneSec = Duration(seconds: 1);
     _current = _work;
+    _output = formatTime(_current);
     _task = "Work!";
     _timer = Timer.periodic(
       oneSec,
@@ -37,6 +56,7 @@ class _HomePage extends State<HomePage> {
           else {
             setState(() {
               _current--;
+              _output = formatTime(_current);
             });
           }
         }
@@ -47,6 +67,7 @@ class _HomePage extends State<HomePage> {
   void startBreakTimer() {
     const oneSec = Duration(seconds: 1);
     _current = _break;
+    _output = formatTime(_current);
     _task = "Break!";
     _timer = Timer.periodic(
       oneSec,
@@ -61,6 +82,7 @@ class _HomePage extends State<HomePage> {
           else {
             setState(() {
               _current--;
+              _output = formatTime(_current);
             });
           }
         }
@@ -82,7 +104,7 @@ class _HomePage extends State<HomePage> {
           children: <Widget>[
             Text("Sessions done: $_sessions"),
             Text(_task),
-            Text("$_current"),
+            Text(_output),
             ElevatedButton(onPressed: () {
               if (!_started){
                 startWorkTimer();
