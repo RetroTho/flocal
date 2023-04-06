@@ -11,24 +11,54 @@ class HomePage extends StatefulWidget {
 
 class _HomePage extends State<HomePage> {
   Timer _timer = Timer(const Duration(), () {});
-  int _time = 10;
+  int _work = 10;
+  int _break = 3;
+  int _current = 0;
   bool _started = false;
   bool _paused = false;
+  String _task = "";
 
-  void startTimer() {
+  void startWorkTimer() {
     const oneSec = Duration(seconds: 1);
+    _current = _work;
+    _task = "Work!";
     _timer = Timer.periodic(
       oneSec,
       (Timer timer) {
         if (!_paused) {
-          if (_time == 0){
+          if (_current == 0){
             setState(() {
               timer.cancel();
+              startBreakTimer();
             });
           }
           else {
             setState(() {
-              _time--;
+              _current--;
+            });
+          }
+        }
+      },
+    );
+  }
+
+  void startBreakTimer() {
+    const oneSec = Duration(seconds: 1);
+    _current = _break;
+    _task = "Break!";
+    _timer = Timer.periodic(
+      oneSec,
+      (Timer timer) {
+        if (!_paused) {
+          if (_current == 0){
+            setState(() {
+              timer.cancel();
+              startWorkTimer();
+            });
+          }
+          else {
+            setState(() {
+              _current--;
             });
           }
         }
@@ -48,10 +78,11 @@ class _HomePage extends State<HomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text("$_time"),
+            Text(_task),
+            Text("$_current"),
             ElevatedButton(onPressed: () {
               if (!_started){
-                startTimer();
+                startWorkTimer();
                 _started = true;
               }
               else if (!_paused){
