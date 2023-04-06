@@ -19,6 +19,9 @@ class _HomePage extends State<HomePage> {
   bool _paused = false;
   String _task = "";
   String _output = "";
+  final Widget _playIcon = const Icon(Icons.play_circle);
+  final Widget _pauseIcon = const Icon(Icons.pause_circle);
+  Widget _buttonIcon = const Icon(Icons.play_circle);
 
   String formatTime(int seconds) {
     int hours = (seconds / 3600).truncate();
@@ -93,35 +96,63 @@ class _HomePage extends State<HomePage> {
   @override
   Widget build(BuildContext context){
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Flocal"),
-      ),
+      backgroundColor: const Color(0xFF3B3B3B),
+      appBar: AppBar(centerTitle: true, title: const Text("Flocal", style: TextStyle(color: Colors.white),),),
       body: SizedBox(
         // sets box width to screen width
         width: MediaQuery.of(context).size.width,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text("Sessions done: $_sessions"),
-            Text(_task),
-            Text(_output),
-            ElevatedButton(onPressed: () {
-              if (!_started){
-                startWorkTimer();
-                _started = true;
-              }
-              else if (!_paused){
-                _paused = true;
-              }
-              else {
-                _paused = false;
-              }
-            },
-            child: const Text("Start/Stop")),
-            ElevatedButton(onPressed: () {
+            const Padding(padding: EdgeInsets.only(top: 20)),
+            Text("Sessions done: $_sessions", style: const TextStyle(color: Colors.white,)),
+            const Spacer(),
+            Text(_task, style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w500),),
+            Text(_output, style: const TextStyle(color: Colors.white, fontSize: 55, fontWeight: FontWeight.w100),),
+            IconButton(
+              onPressed: () {
+                if (!_started){
+                  startWorkTimer();
+                  _started = true;
+                  setState(() {_buttonIcon = _pauseIcon;});
+                }
+                else if (!_paused){
+                  _paused = true;
+                  setState(() {_buttonIcon = _playIcon;});
+                }
+                else {
+                  _paused = false;
+                  setState(() {_buttonIcon = _pauseIcon;});
+                }
+              },
+              icon: _buttonIcon,
+              color: Colors.white,
+              iconSize: 50,
+            ),
+            const Spacer(),
+            ElevatedButton(
+              style: const ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+              onPressed: () {
               _current = 0;
             },
-            child: const Text("Skip")),
+            child: const Text("Skip", style: TextStyle(color: Colors.white),)),
+            const Padding(padding: EdgeInsets.only(top: 10)),
+            ElevatedButton(
+              style: const ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+              onPressed: () {
+              _task = "";
+              _output = "";
+              setState(() {
+                _buttonIcon = _playIcon;
+                _sessions = 0;
+              });
+              _timer.cancel();
+              _current = 0;
+              _paused = false;
+              _started = false;
+            },
+            child: const Text("Reset", style: TextStyle(color: Colors.white),)),
+            const Padding(padding: EdgeInsets.only(top: 20)),
           ],
         ),
       ),
