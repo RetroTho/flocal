@@ -11,9 +11,10 @@ class HomePage extends StatefulWidget {
 
 class _HomePage extends State<HomePage> {
   Timer _timer = Timer(const Duration(), () {});
-  int _work = 10;
-  int _break = 3;
+  final int _work = 10;
+  final int _break = 3;
   int _current = 0;
+  int _sessions = 0;
   bool _started = false;
   bool _paused = false;
   String _task = "";
@@ -29,6 +30,7 @@ class _HomePage extends State<HomePage> {
           if (_current == 0){
             setState(() {
               timer.cancel();
+              _sessions++;
               startBreakTimer();
             });
           }
@@ -78,6 +80,7 @@ class _HomePage extends State<HomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            Text("Sessions done: $_sessions"),
             Text(_task),
             Text("$_current"),
             ElevatedButton(onPressed: () {
@@ -93,6 +96,10 @@ class _HomePage extends State<HomePage> {
               }
             },
             child: const Text("Start/Stop")),
+            ElevatedButton(onPressed: () {
+              _current = 0;
+            },
+            child: const Text("Skip")),
           ],
         ),
       ),
