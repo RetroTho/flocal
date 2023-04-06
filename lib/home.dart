@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key, required this.title});
-  final String title;
+  const HomePage({super.key});
   
   @override
   State<StatefulWidget> createState() => _HomePage();
@@ -11,6 +10,9 @@ class HomePage extends StatefulWidget {
 
 class _HomePage extends State<HomePage> {
   Timer _timer = Timer(const Duration(), () {});
+  final Widget _playIcon = const Icon(Icons.play_circle);
+  final Widget _pauseIcon = const Icon(Icons.pause_circle);
+  Widget _buttonIcon = const Icon(Icons.play_circle);
   final int _work = 1500;
   final int _break = 300;
   final int _longBreak = 1200;
@@ -20,10 +22,8 @@ class _HomePage extends State<HomePage> {
   bool _paused = false;
   String _task = "";
   String _output = "";
-  final Widget _playIcon = const Icon(Icons.play_circle);
-  final Widget _pauseIcon = const Icon(Icons.pause_circle);
-  Widget _buttonIcon = const Icon(Icons.play_circle);
 
+  // formats an amount of seconds into HH:MM:SS format
   String formatTime(int seconds) {
     int hours = (seconds / 3600).truncate();
     seconds = (seconds % 3600).truncate();
@@ -41,11 +41,9 @@ class _HomePage extends State<HomePage> {
     }
   }
 
-  void startWorkTimer() {
+  // starts the timer
+  void startTimer() {
     const oneSec = Duration(seconds: 1);
-    _current = _work;
-    _output = formatTime(_current);
-    _task = "Work!";
     _timer = Timer.periodic(
       oneSec,
       (Timer timer) {
@@ -53,8 +51,7 @@ class _HomePage extends State<HomePage> {
           if (_current == 0){
             setState(() {
               timer.cancel();
-              _sessions++;
-              startBreakTimer();
+              switchTask();
             });
           }
           else {
@@ -68,8 +65,16 @@ class _HomePage extends State<HomePage> {
     );
   }
 
-  void startBreakTimer() {
-    const oneSec = Duration(seconds: 1);
+  // sets and starts the timer for a work session
+  void startWork() {
+    _current = _work;
+    _output = formatTime(_current);
+    _task = "Work!";
+    startTimer();
+  }
+
+  // sets and starts the timer for a break or long break
+  void startBreak() {
     if ((_sessions % 4) == 0) {
       _current = _longBreak;
     }
@@ -78,25 +83,18 @@ class _HomePage extends State<HomePage> {
     }
     _output = formatTime(_current);
     _task = "Break!";
-    _timer = Timer.periodic(
-      oneSec,
-      (Timer timer) {
-        if (!_paused) {
-          if (_current == 0){
-            setState(() {
-              timer.cancel();
-              startWorkTimer();
-            });
-          }
-          else {
-            setState(() {
-              _current--;
-              _output = formatTime(_current);
-            });
-          }
-        }
-      },
-    );
+    startTimer();
+  }
+
+  // switches between work and break tasks
+  void switchTask() {
+    if (_task == "Work!") {
+      _sessions++;
+      startBreak();
+    }
+    else {
+      startWork();
+    }
   }
 
   @override
@@ -111,14 +109,32 @@ class _HomePage extends State<HomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Padding(padding: EdgeInsets.only(top: 20)),
-            Text("Sessions done: $_sessions", style: const TextStyle(color: Colors.white,)),
+            Text(
+              "Sessions done: $_sessions",
+              style: const TextStyle(color: Colors.white),
+            ),
             const Spacer(),
-            Text(_task, style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w500),),
-            Text(_output, style: const TextStyle(color: Colors.white, fontSize: 55, fontWeight: FontWeight.w100),),
+            Text(
+              _task,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            Text(
+              _output,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 55,
+                fontWeight: FontWeight.w100,
+              ),
+            ),
             IconButton(
               onPressed: () {
+                // start, pause, or unpause the timer based on it's current state
                 if (!_started){
-                  startWorkTimer();
+                  startWork();
                   _started = true;
                   setState(() {_buttonIcon = _pauseIcon;});
                 }
@@ -139,25 +155,35 @@ class _HomePage extends State<HomePage> {
             ElevatedButton(
               style: const ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
               onPressed: () {
-              _current = 0;
-            },
-            child: const Text("Skip", style: TextStyle(color: Colors.white),)),
+                // skip current task
+                _current = 0;
+              },
+              child: const Text(
+                "Skip",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
             const Padding(padding: EdgeInsets.only(top: 10)),
             ElevatedButton(
               style: const ButtonStyle(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
               onPressed: () {
-              _task = "";
-              _output = "";
-              setState(() {
-                _buttonIcon = _playIcon;
-                _sessions = 0;
-              });
-              _timer.cancel();
-              _current = 0;
-              _paused = false;
-              _started = false;
-            },
-            child: const Text("Reset", style: TextStyle(color: Colors.white),)),
+                // reset app to inital state
+                _task = "";
+                _output = "";
+                setState(() {
+                  _buttonIcon = _playIcon;
+                  _sessions = 0;
+                });
+                _timer.cancel();
+                _current = 0;
+                _paused = false;
+                _started = false;
+              },
+              child: const Text(
+                "Reset",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
             const Padding(padding: EdgeInsets.only(top: 20)),
           ],
         ),
