@@ -13,6 +13,7 @@ class _HomePage extends State<HomePage> {
   Timer _timer = Timer(const Duration(), () {});
   final int _work = 1500;
   final int _break = 300;
+  final int _longBreak = 1200;
   int _current = 0;
   int _sessions = 0;
   bool _started = false;
@@ -69,7 +70,12 @@ class _HomePage extends State<HomePage> {
 
   void startBreakTimer() {
     const oneSec = Duration(seconds: 1);
-    _current = _break;
+    if ((_sessions % 4) == 0) {
+      _current = _longBreak;
+    }
+    else{
+      _current = _break;
+    }
     _output = formatTime(_current);
     _task = "Break!";
     _timer = Timer.periodic(
